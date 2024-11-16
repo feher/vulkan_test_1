@@ -1,0 +1,644 @@
+---
+#
+# clang-format version 17.0.3
+# https://releases.llvm.org/17.0.1/tools/clang/docs/ClangFormat.html
+# https://releases.llvm.org/17.0.1/tools/clang/docs/ClangFormatStyleOptions.html
+#
+
+Language:        Cpp
+# BasedOnStyle:  Microsoft
+
+#
+# https://releases.llvm.org/17.0.1/tools/clang/docs/ClangFormatStyleOptions.html#accessmodifieroffset
+#
+# The extra indent or outdent of access modifiers, e.g. public:.
+#
+#   class Apple {        ---     class Apple
+#   public:                          public:
+#       int i;                       int i;
+#   }                            }
+#
+AccessModifierOffset: -4
+
+#
+# https://releases.llvm.org/17.0.1/tools/clang/docs/ClangFormatStyleOptions.html#alignafteropenbracket
+#
+# If true, horizontally aligns arguments after an open bracket.
+# This applies to round brackets (parentheses), angle brackets and square brackets.
+# Possible values:
+#
+# - BAS_Align (in configuration: Align)
+#   Align parameters on the open bracket, e.g.:
+#
+#     someLongFunction(argument1,
+#                      argument2);
+#
+# - BAS_DontAlign (in configuration: DontAlign)
+#   Don't align, instead use ContinuationIndentWidth, e.g.:
+#
+#     someLongFunction(argument1,
+#         argument2);
+#
+# - BAS_AlwaysBreak (in configuration: AlwaysBreak)
+#   Always break after an open bracket, if the parameters don't fit on a single line, e.g.:
+#
+#     someLongFunction(
+#         argument1, argument2);
+#
+# - BAS_BlockIndent (in configuration: BlockIndent)
+#   Always break after an open bracket, if the parameters don't fit on a single line.
+#   Closing brackets will be placed on a new line. E.g.:
+#
+#     someLongFunction(
+#         argument1, argument2
+#     )
+#
+AlignAfterOpenBracket: AlwaysBreak
+
+#
+# https://releases.llvm.org/17.0.1/tools/clang/docs/ClangFormatStyleOptions.html#alignarrayofstructures
+#
+# if not None, when using initialization for an array of structs aligns the fields into columns.
+#
+# Note
+# As of clang-format 15 this option only applied to arrays with equal number of columns per row.
+#
+# Possible values:
+#
+# AIAS_Left (in configuration: Left) Align array column and left justify the columns e.g.:
+#
+#   struct test demo[] =
+#   {
+#       {56, 23,    "hello"},
+#       {-1, 93463, "world"},
+#       {7,  5,     "!!"   }
+#   };
+#
+# AIAS_Right (in configuration: Right) Align array column and right justify the columns e.g.:
+#
+#   struct test demo[] =
+#   {
+#       {56,    23, "hello"},
+#       {-1, 93463, "world"},
+#       { 7,     5,    "!!"}
+#   };
+#
+# AIAS_None (in configuration: None) Don't align array initializer columns.
+#
+AlignArrayOfStructures: None
+
+#
+# https://releases.llvm.org/17.0.1/tools/clang/docs/ClangFormatStyleOptions.html#alignconsecutiveassignments
+#
+# Style of aligning consecutive assignments.
+#
+# Consecutive will result in formattings like:
+#
+#     int a            = 1;
+#     int somelongname = 2;
+#     double c         = 3;
+#
+# Nested configuration flags:
+#
+# Alignment options.
+#
+# They can also be read as a whole for compatibility. The choices are: - None - Consecutive - AcrossEmptyLines - AcrossComments - AcrossEmptyLinesAndComments
+#
+# For example, to align across empty lines and not across comments, either of these work.
+#
+#     AlignConsecutiveMacros: AcrossEmptyLines
+#
+#     AlignConsecutiveMacros:
+#     Enabled: true
+#     AcrossEmptyLines: true
+#     AcrossComments: false
+#
+# - bool Enabled Whether aligning is enabled.
+#
+#     #define SHORT_NAME       42
+#     #define LONGER_NAME      0x007f
+#     #define EVEN_LONGER_NAME (2)
+#     #define foo(x)           (x * x)
+#     #define bar(y, z)        (y + z)
+#
+#     int a            = 1;
+#     int somelongname = 2;
+#     double c         = 3;
+#
+#     int aaaa : 1;
+#     int b    : 12;
+#     int ccc  : 8;
+#
+#     int         aaaa = 12;
+#     float       b = 23;
+#     std::string ccc;
+#
+# - bool AcrossEmptyLines Whether to align across empty lines.
+#
+#   true:
+#     int a            = 1;
+#     int somelongname = 2;
+#     double c         = 3;
+#
+#     int d            = 3;
+#
+#   false:
+#     int a            = 1;
+#     int somelongname = 2;
+#     double c         = 3;
+#
+#     int d = 3;
+#
+# - bool AcrossComments Whether to align across comments.
+#
+#   true:
+#     int d    = 3;
+#     /* A comment. */
+#     double e = 4;
+#
+#   false:
+#     int d = 3;
+#     /* A comment. */
+#     double e = 4;
+#
+# - bool AlignCompound Only for AlignConsecutiveAssignments. Whether compound assignments like += are aligned along with =.
+#
+#   true:
+#     a   &= 2;
+#     bbb  = 2;
+#
+#   false:
+#     a &= 2;
+#     bbb = 2;
+#
+# - bool PadOperators Only for AlignConsecutiveAssignments. Whether short assignment operators are left-padded to
+#   the same length as long ones in order to put all assignment operators to the right of the left hand side.
+#  
+#   true:
+#     a   >>= 2;
+#     bbb   = 2;
+#  
+#     a     = 2;
+#     bbb >>= 2;
+#  
+#   false:
+#     a >>= 2;
+#     bbb = 2;
+#  
+#     a     = 2;
+#     bbb >>= 2;
+#
+AlignConsecutiveAssignments:
+  Enabled:         false
+  AcrossEmptyLines: false
+  AcrossComments:  false
+  AlignCompound:   false
+  PadOperators:    false
+AlignConsecutiveBitFields:
+  Enabled:         false
+  AcrossEmptyLines: false
+  AcrossComments:  false
+  AlignCompound:   false
+  PadOperators:    false
+AlignConsecutiveDeclarations:
+  Enabled:         false
+  AcrossEmptyLines: false
+  AcrossComments:  false
+  AlignCompound:   false
+  PadOperators:    false
+AlignConsecutiveMacros:
+  Enabled:         false
+  AcrossEmptyLines: false
+  AcrossComments:  false
+  AlignCompound:   false
+  PadOperators:    false
+AlignConsecutiveShortCaseStatements:
+  Enabled:         false
+  AcrossEmptyLines: false
+  AcrossComments:  false
+  AlignCaseColons: false
+
+#
+# https://releases.llvm.org/17.0.1/tools/clang/docs/ClangFormatStyleOptions.html#alignescapednewlines
+#
+# Options for aligning backslashes in escaped newlines.
+#
+# Possible values:
+#
+# - ENAS_DontAlign (in configuration: DontAlign) Don't align escaped newlines.
+#
+#     #define A \
+#       int aaaa; \
+#       int b; \
+#       int dddddddddd;
+#
+# - ENAS_Left (in configuration: Left) Align escaped newlines as far left as possible.
+#
+#   true:
+#     #define A   \
+#       int aaaa; \
+#       int b;    \
+#       int dddddddddd;
+#
+#   false:
+#
+# - ENAS_Right (in configuration: Right) Align escaped newlines in the right-most column.
+#
+#     #define A                                                    \
+#       int aaaa;                                                  \
+#       int b;                                                     \
+#       int dddddddddd;
+#
+AlignEscapedNewlines: DontAlign
+
+#
+# https://releases.llvm.org/17.0.1/tools/clang/docs/ClangFormatStyleOptions.html#alignoperands
+# 
+# If true, horizontally align operands of binary and ternary expressions.
+#
+# Possible values:
+#
+# - OAS_DontAlign (in configuration: DontAlign) Do not align operands of binary and ternary expressions.
+#   The wrapped lines are indented ContinuationIndentWidth spaces from the start of the line.
+#
+#     double aaa = bbbbbbbbbbbbbbb +
+#         ccccccccccccccc;
+#
+# - OAS_Align (in configuration: Align) Horizontally align operands of binary and ternary expressions.
+#
+#   Specifically, this aligns operands of a single expression that needs to be split over multiple lines, e.g.:
+#
+#     int aaa = bbbbbbbbbbbbbbb +
+#               ccccccccccccccc;
+#
+#   When BreakBeforeBinaryOperators is set, the wrapped operator is aligned with the operand on the first line.
+#
+#     int aaa = bbbbbbbbbbbbbbb
+#               + ccccccccccccccc;
+#
+# - OAS_AlignAfterOperator (in configuration: AlignAfterOperator) Horizontally align operands of binary
+#   and ternary expressions.
+#
+#   This is similar to AO_Align, except when BreakBeforeBinaryOperators is set, the operator is un-indented
+#   so that the wrapped operand is aligned with the operand on the first line.
+#
+#     int aaa = bbbbbbbbbbbbbbb
+#             + ccccccccccccccc;
+#
+AlignOperands:   DontAlign
+
+#
+# https://releases.llvm.org/17.0.1/tools/clang/docs/ClangFormatStyleOptions.html#aligntrailingcomments
+#
+# Control of trailing comments.
+#
+# Note:
+# As of clang-format 16 this option is not a bool but can be set to the options. Conventional bool options still can be parsed as before.
+#
+# Example of usage:
+#
+#   AlignTrailingComments:
+#     Kind: Always
+#     OverEmptyLines: 2
+#
+# Nested configuration flags:
+#
+# Alignment options
+#
+# - TrailingCommentsAlignmentKinds Kind Specifies the way to align trailing comments.
+#
+# Possible values:
+#
+# -- TCAS_Leave (in configuration: Leave) Leave trailing comments as they are.
+#
+#      int a;    // comment
+#      int ab;       // comment
+#
+#      int abc;  // comment
+#      int abcd;     // comment
+#
+# -- TCAS_Always (in configuration: Always) Align trailing comments.
+#
+#      int a;  // comment
+#      int ab; // comment
+#
+#      int abc;  // comment
+#      int abcd; // comment
+#
+# -- TCAS_Never (in configuration: Never) Don't align trailing comments but other formatter applies.
+#
+#      int a; // comment
+#      int ab; // comment
+#
+#      int abc; // comment
+#      int abcd; // comment
+#
+# - unsigned OverEmptyLines How many empty lines to apply alignment.
+#   When both MaxEmptyLinesToKeep and OverEmptyLines are set to 2, it formats like below.
+#
+#     int a;      // all these
+#
+#     int ab;     // comments are
+#
+#
+#     int abcdef; // aligned
+#
+#   When MaxEmptyLinesToKeep is set to 2 and OverEmptyLines is set to 1, it formats like below.
+#
+#     int a;  // these are
+#
+#     int ab; // aligned
+#
+#
+#     int abcdef; // but this isn't
+#
+AlignTrailingComments:
+  Kind:            Never
+  OverEmptyLines:  0
+
+#
+# https://releases.llvm.org/17.0.1/tools/clang/docs/ClangFormatStyleOptions.html#allowallargumentsonnextline
+#
+# If a function call or braced initializer list doesn't fit on a line, allow putting all arguments onto the next line, even if BinPackArguments is false.
+#
+#   true:
+#     callFunction(
+#         a, b, c, d);
+#
+#   false:
+#     callFunction(a,
+#                  b,
+#                  c,
+#                  d);
+#
+AllowAllArgumentsOnNextLine: true
+
+#
+# https://releases.llvm.org/17.0.1/tools/clang/docs/ClangFormatStyleOptions.html#allowallparametersofdeclarationonnextline
+#
+# If the function declaration doesn't fit on a line, allow putting all parameters of a function declaration onto
+# the next line even if BinPackParameters is false.
+#
+#   true:
+#     void myFunction(
+#         int a, int b, int c, int d, int e);
+#
+#   false:
+#     void myFunction(int a,
+#                     int b,
+#                     int c,
+#                     int d,
+#                     int e);
+#
+AllowAllParametersOfDeclarationOnNextLine: false
+
+#
+# https://releases.llvm.org/17.0.1/tools/clang/docs/ClangFormatStyleOptions.html#allowshortblocksonasingleline
+#
+# Dependent on the value, while (true) { continue; } can be put on a single line.
+# 
+# Possible values:
+# 
+# - SBS_Never (in configuration: Never) Never merge blocks into a single line.
+#
+#   while (true) {
+#   }
+#   while (true) {
+#     continue;
+#   }
+#
+# - SBS_Empty (in configuration: Empty) Only merge empty blocks.
+# 
+#   while (true) {}
+#   while (true) {
+#     continue;
+#   }
+#
+# - SBS_Always (in configuration: Always) Always merge short blocks into a single line.
+# 
+#   while (true) {}
+#   while (true) { continue; }
+# 
+AllowShortBlocksOnASingleLine: Never
+
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortEnumsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLambdasOnASingleLine: None
+AllowShortLoopsOnASingleLine: false
+AlwaysBreakAfterDefinitionReturnType: None
+AlwaysBreakAfterReturnType: None
+AlwaysBreakBeforeMultilineStrings: false
+
+# https://releases.llvm.org/17.0.1/tools/clang/docs/ClangFormatStyleOptions.html#alwaysbreaktemplatedeclarations
+AlwaysBreakTemplateDeclarations: Yes
+
+AttributeMacros:
+  - __capability
+BinPackArguments: false
+BinPackParameters: true
+BitFieldColonSpacing: Both
+BraceWrapping:
+  AfterCaseLabel:  true
+  AfterClass:      true
+  AfterControlStatement: Always
+  AfterEnum:       true
+  AfterExternBlock: true
+  AfterFunction:   true
+  AfterNamespace:  true
+  AfterObjCDeclaration: true
+  AfterStruct:     true
+  AfterUnion:      true
+  BeforeCatch:     true
+  BeforeElse:      true
+  BeforeLambdaBody: true
+  BeforeWhile:     false
+  IndentBraces:    false
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+  SplitEmptyNamespace: true
+BreakAfterAttributes: Never
+BreakAfterJavaFieldAnnotations: false
+BreakArrays:     true
+BreakBeforeBinaryOperators: None
+BreakBeforeConceptDeclarations: Always
+BreakBeforeBraces: Custom
+BreakBeforeInlineASMColon: OnlyMultiline
+BreakBeforeTernaryOperators: true
+BreakConstructorInitializers: AfterColon
+BreakInheritanceList: AfterColon
+BreakStringLiterals: true
+ColumnLimit:     120
+CommentPragmas:  '^ IWYU pragma:'
+CompactNamespaces: false
+ConstructorInitializerIndentWidth: 4
+ContinuationIndentWidth: 4
+Cpp11BracedListStyle: false
+DerivePointerAlignment: false
+DisableFormat:   false
+EmptyLineAfterAccessModifier: Never
+EmptyLineBeforeAccessModifier: LogicalBlock
+ExperimentalAutoDetectBinPacking: false
+FixNamespaceComments: true
+ForEachMacros:
+  - foreach
+  - Q_FOREACH
+  - BOOST_FOREACH
+IfMacros:
+  - KJ_IF_MAYBE
+IncludeBlocks:   Preserve
+IncludeCategories:
+  - Regex:           '^"(llvm|llvm-c|clang|clang-c)/'
+    Priority:        2
+    SortPriority:    0
+    CaseSensitive:   false
+  - Regex:           '^(<|"(gtest|gmock|isl|json)/)'
+    Priority:        3
+    SortPriority:    0
+    CaseSensitive:   false
+  - Regex:           '.*'
+    Priority:        1
+    SortPriority:    0
+    CaseSensitive:   false
+IncludeIsMainRegex: '(Test)?$'
+IncludeIsMainSourceRegex: ''
+IndentAccessModifiers: false
+IndentCaseBlocks: false
+IndentCaseLabels: true
+IndentExternBlock: NoIndent
+IndentGotoLabels: true
+IndentPPDirectives: None
+IndentRequiresClause: false
+IndentWidth:     4
+IndentWrappedFunctionNames: false
+InsertBraces:    false
+InsertNewlineAtEOF: false
+InsertTrailingCommas: None
+IntegerLiteralSeparator:
+  Binary:          0
+  BinaryMinDigits: 0
+  Decimal:         0
+  DecimalMinDigits: 0
+  Hex:             0
+  HexMinDigits:    0
+JavaScriptQuotes: Leave
+JavaScriptWrapImports: true
+KeepEmptyLinesAtTheStartOfBlocks: true
+KeepEmptyLinesAtEOF: false
+LambdaBodyIndentation: Signature
+LineEnding:      DeriveLF
+MacroBlockBegin: ''
+MacroBlockEnd:   ''
+MaxEmptyLinesToKeep: 1
+
+# https://releases.llvm.org/17.0.1/tools/clang/docs/ClangFormatStyleOptions.html#namespaceindentation
+NamespaceIndentation: None
+
+ObjCBinPackProtocolList: Auto
+ObjCBlockIndentWidth: 2
+ObjCBreakBeforeNestedBlockParam: true
+ObjCSpaceAfterProperty: false
+ObjCSpaceBeforeProtocolList: true
+PackConstructorInitializers: Never
+PenaltyBreakAssignment: 2
+PenaltyBreakBeforeFirstCallParameter: 19
+PenaltyBreakComment: 300
+PenaltyBreakFirstLessLess: 120
+PenaltyBreakOpenParenthesis: 0
+PenaltyBreakString: 1000
+PenaltyBreakTemplateDeclaration: 10
+PenaltyExcessCharacter: 1000000
+PenaltyIndentedWhitespace: 0
+PenaltyReturnTypeOnItsOwnLine: 1000
+PointerAlignment: Left
+PPIndentWidth:   -1
+QualifierAlignment: Left
+ReferenceAlignment: Pointer
+ReflowComments:  true
+RemoveBracesLLVM: false
+RemoveParentheses: Leave
+RemoveSemicolon: false
+RequiresClausePosition: OwnLine
+RequiresExpressionIndentation: OuterScope
+SeparateDefinitionBlocks: Leave
+ShortNamespaceLines: 1
+SortIncludes:    CaseSensitive
+SortJavaStaticImport: Before
+SortUsingDeclarations: LexicographicNumeric
+SpaceAfterCStyleCast: false
+SpaceAfterLogicalNot: false
+SpaceAfterTemplateKeyword: false
+SpaceAroundPointerQualifiers: Default
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeCaseColon: false
+SpaceBeforeCpp11BracedList: false
+SpaceBeforeCtorInitializerColon: true
+SpaceBeforeInheritanceColon: true
+SpaceBeforeJsonColon: false
+SpaceBeforeParens: ControlStatements
+SpaceBeforeParensOptions:
+  AfterControlStatements: true
+  AfterForeachMacros: true
+  AfterFunctionDefinitionName: false
+  AfterFunctionDeclarationName: false
+  AfterIfMacros:   true
+  AfterOverloadedOperator: false
+  AfterRequiresInClause: true
+  AfterRequiresInExpression: false
+  BeforeNonEmptyParentheses: false
+SpaceBeforeRangeBasedForLoopColon: true
+SpaceBeforeSquareBrackets: false
+SpaceInEmptyBlock: false
+SpacesBeforeTrailingComments: 1
+
+#
+# https://releases.llvm.org/17.0.1/tools/clang/docs/ClangFormatStyleOptions.html#spacesinangles
+#
+# The SpacesInAnglesStyle to use for template argument lists.
+#
+# Possible values:
+#
+# - SIAS_Never (in configuration: Never) Remove spaces after < and before >.
+#
+#     static_cast<int>(arg);
+#     std::function<void(int)> fct;
+#
+# - SIAS_Always (in configuration: Always) Add spaces after < and before >.
+#
+#     static_cast< int >(arg);
+#     std::function< void(int) > fct;
+#
+# - SIAS_Leave (in configuration: Leave) Keep a single space after < and before > if any spaces were present.
+#   Option "Standard: Cpp03" takes precedence.
+#
+SpacesInAngles:  Never
+
+SpacesInContainerLiterals: true
+SpacesInLineCommentPrefix:
+  Minimum:         1
+  Maximum:         -1
+SpacesInParens:  Never
+SpacesInParensOptions:
+  InCStyleCasts:   false
+  InConditionalStatements: false
+  InEmptyParentheses: false
+  Other:           false
+SpacesInSquareBrackets: false
+Standard:        Latest
+StatementAttributeLikeMacros:
+  - Q_EMIT
+StatementMacros:
+  - Q_UNUSED
+  - QT_REQUIRE_VERSION
+TabWidth:        4
+UseTab:          Never
+VerilogBreakBetweenInstancePorts: true
+WhitespaceSensitiveMacros:
+  - BOOST_PP_STRINGIZE
+  - CF_SWIFT_NAME
+  - NS_SWIFT_NAME
+  - PP_STRINGIZE
+  - STRINGIZE
+...
+
