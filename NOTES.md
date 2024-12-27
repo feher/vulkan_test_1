@@ -9,6 +9,29 @@ vcpkg add port glfw3
 
 ## Vulkan
 
+```
+Instance ---- Physical Device --+-- Graphics Queue Family ---- Queue
+                |               |
+                |               +-- Compute Queue Family
+                |               |
+                |               +-- Transfer Queue Family
+                |
+              Logical Device 
+```
+
+```
+GLFW Window ---- Vulkan Window Surface
+                   ^
+                   |
+                   |
+                 Swapchain --+-- Image <---- Image View <---- Framebuffer
+                             |
+                             +-- Image <---- Image View <---- Framebuffer
+                             |
+                             +-- ...
+```
+
+
 Vulkan Instance
 - References the Vulkan Context.
 - Defines the Vulkan version and its capabilities.
@@ -69,3 +92,46 @@ Image Views
 - Describes how to interpret (read/write) the Image.
   - 2D or 3D, format, etc
   - color channels, mip levels, etc
+
+Pipeline
+- Configures a fixed pipeline (there can be multiple pipelines).
+- Contains configurations for:
+  - shader modules,
+  - vertex input,
+  - input assembly,
+  - viewport and scissor,
+  - rasterizer,
+  - multisampling,
+  - color blending
+
+Render Pass
+???
+
+Frame Buffers
+- Just a reference/view to an Image.
+- The Render Pass writes its output into an Image referenced via the Frame Buffer.
+
+Command Buffer
+- Pre-recorded commands. Submitted to the GPU all at once.
+- Allocated from a pool.
+- Usual order of commands in a command buffer:
+  1. Start Render Pass.
+  2. Bind a Pipeline.
+  3. Bind vertex, index data.
+  4. Bind Descriptor Sets and Push Constants.
+  5. Draw.
+
+Queues
+- Command Buffers are submitted to a Queue (e.g. Graphics Queue).
+
+Synchronization
+- Semaphores
+  - Only for synchronization between both GPU-GPU and CPU-GPU.
+  - Examples:
+    - Signal that an image is available for writing.
+    - Signal that an image is available for presenting.
+- Fences
+  - Can be used for CPU-GPU synchronization.
+    - CPU can un-signal (lock) it and wait on it (for unlock). Only the GPU can signal (unlock) it.
+  - Examples:
+    - Wait for a frame to be available (to avoid flooding the queue with draw/present commands).

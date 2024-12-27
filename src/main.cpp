@@ -1,6 +1,7 @@
 #include "Factory.hpp"
-#include "window/IWindow.hpp"
+#include "common/IFileSystem.hpp"
 #include "renderer/IRenderer.hpp"
+#include "window/IWindow.hpp"
 
 // Use a clip space between 0 to 1.
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -13,19 +14,28 @@ using namespace VkTest1;
 
 int main()
 {
-    auto factory = Factory{};
-
-    auto window = factory.createWindow();
-    auto renderer = factory.createRenderer(window.get());
-
-    std::println("Running.");
-
-    while (!window->shouldClose())
+    try
     {
-        window->handleEvents();
-    }
+        auto factory = Factory{};
 
-    std::println("Exitting.");
+        auto fileSystem = factory.createFileSystem();
+        auto window = factory.createWindow();
+        auto renderer = factory.createRenderer(fileSystem.get(), window.get());
+
+        std::println("Running.");
+
+        while (!window->shouldClose())
+        {
+            renderer->draw();
+            window->handleEvents();
+        }
+
+        std::println("Exitting.");
+    }
+    catch (const std::exception& ex)
+    {
+        std::println("EXCEPTION: {}", ex.what());
+    }
 
     return EXIT_SUCCESS;
 }

@@ -1,35 +1,80 @@
-add_executable(vulkan_test_01
-	"main.cpp"
-	"Factory.hpp"
-	"Factory.cpp"
+set(myTargetName "vulkan_test_01")
 
-	"common/Cast.hpp"
-	"common/Errors.hpp"
-	"common/Types.hpp"
+################################################################################
+#
+# Build shaders
+#
 
-	"renderer/DebugUtilsMessenger.cpp"
-	"renderer/DebugUtilsMessenger.hpp"
-	"renderer/IRenderer.hpp"
-	"renderer/VulkanRenderer.cpp"
-	"renderer/VulkanRenderer.hpp"
+set(shaderBinaries
+    "${CMAKE_CURRENT_BINARY_DIR}/renderer/shaders/vert.spv"
+    "${CMAKE_CURRENT_BINARY_DIR}/renderer/shaders/frag.spv")
 
-	"window/GlfwWindow.cpp"
-	"window/GlfwWindow.hpp"
-	"window/IWindow.hpp"
+add_custom_command(
+    OUTPUT ${shaderBinaries}
+    DEPENDS
+        "${CMAKE_CURRENT_SOURCE_DIR}/renderer/shaders/vert.glsl"
+        "${CMAKE_CURRENT_SOURCE_DIR}/renderer/shaders/frag.glsl"
+    COMMAND Vulkan::glslc
+    ARGS
+        --target-env=vulkan -fshader-stage=vertex
+        -o "${CMAKE_CURRENT_BINARY_DIR}/renderer/shaders/vert.spv"
+        "${CMAKE_CURRENT_SOURCE_DIR}/renderer/shaders/vert.glsl"
+    COMMAND Vulkan::glslc
+    ARGS
+        --target-env=vulkan -fshader-stage=fragment
+        -o "${CMAKE_CURRENT_BINARY_DIR}/renderer/shaders/frag.spv"
+        "${CMAKE_CURRENT_SOURCE_DIR}/renderer/shaders/frag.glsl"
 )
 
-target_include_directories(vulkan_test_01 PRIVATE
-	${CMAKE_CURRENT_SOURCE_DIR}
+add_custom_target(${myTargetName}_shaders ALL DEPENDS ${shaderBinaries})
+
+################################################################################
+#
+# Build program
+#
+
+add_executable(${myTargetName}
+    "main.cpp"
+    "Factory.hpp"
+    "Factory.cpp"
+
+    "common/Cast.hpp"
+    "common/Errors.hpp"
+    "common/Types.hpp"
+    "common/IFileSystem.hpp"
+    "common/FileSystem.hpp"
+    "common/FileSystem.cpp"
+
+    "renderer/DebugUtilsMessenger.cpp"
+    "renderer/DebugUtilsMessenger.hpp"
+    "renderer/IRenderer.hpp"
+    "renderer/VulkanRenderer.cpp"
+    "renderer/VulkanRenderer.hpp"
+
+    "window/GlfwWindow.cpp"
+    "window/GlfwWindow.hpp"
+    "window/IWindow.hpp"
 )
 
-target_link_libraries(vulkan_test_01 PRIVATE
-	Vulkan::Vulkan
-	glfw
-	glm::glm
+target_include_directories(${myTargetName} PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-set_target_properties(vulkan_test_01 PROPERTIES
-	CXX_STANDARD 23
-	CXX_STANDARD_REQUIRED ON
-	CXX_EXTENSIONS OFF
+target_link_libraries(${myTargetName} PRIVATE
+    Vulkan::Vulkan
+    glfw
+    glm::glm
 )
+
+set_target_properties(${myTargetName} PROPERTIES
+    CXX_STANDARD 23
+    CXX_STANDARD_REQUIRED ON
+    CXX_EXTENSIONS OFF
+)
+
+add_dependencies(${myTargetName} ${myTargetName}_shaders)
+
+add_custom_command(TARGET ${myTargetName}
+    POST_BUILD
+    COMMENT "Copying shaders to $<TARGET_FILE_DIR:${myTargetName}>/renderer/shaders"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_BINARY_DIR}/renderer/shaders" "$<TARGET_FILE_DIR:${myTargetName}>/renderer/shaders")

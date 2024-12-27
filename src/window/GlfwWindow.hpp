@@ -21,6 +21,8 @@ public:
 
     OpaqueSurface createSurface(void* rendererInstance) override;
 
+    std::pair<Common::Uint, Common::Uint> getSize() const override;
+
 private:
     Common::NotNull<GLFWwindow*> m_window;
 };

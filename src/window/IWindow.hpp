@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <utility> // pair
 
 namespace VkTest1::Window
 {
@@ -18,6 +19,8 @@ public:
     virtual std::vector<const char*> getRendererInstanceExtensions() const = 0;
 
     virtual OpaqueSurface createSurface(void* rendererInstance) = 0;
+
+    virtual std::pair<Common::Uint, Common::Uint> getSize() const = 0;
 };
 
 } // namespace VkTest1::Window

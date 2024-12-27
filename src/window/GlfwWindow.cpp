@@ -66,4 +66,12 @@ IWindow::OpaqueSurface GlfwWindow::createSurface(void* rendererInstance)
     return surface;
 }
 
+std::pair<Common::Uint, Common::Uint> GlfwWindow::getSize() const
+{
+    int width{ 0 };
+    int height{ 0 };
+    glfwGetWindowSize(m_window, &width, &height);
+    return { width, height };
+}
+
 } // namespace VkTest1::Window::Detail
