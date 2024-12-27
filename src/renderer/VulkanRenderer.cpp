@@ -675,7 +675,9 @@ void recordCommands(
 
     const vk::CommandBufferBeginInfo cmdBufferBI{
         // eSimultaneousUse means this command buffer may be in the queue (submitted) multiple times.
-        /* flags */ vk::CommandBufferUsageFlagBits::eSimultaneousUse
+        // We don't set that because only one instance of this command buffer will be in the queue at once.
+        // We use fences to ensure that (i.e. m_drawFence).
+        /* flags */ vk::CommandBufferUsageFlags{}
     };
 
     const std::array<vk::ClearValue, 1> clearValues{ // Clear value for the color attachment.
@@ -776,7 +778,38 @@ VulkanRenderer::~VulkanRenderer()
 
 void VulkanRenderer::draw()
 {
-    // -- GET SWAPCHAIN IMAGE
+    //
+    // In the queue, we allow only s_maxFrameCountInQueue frames at once.
+    // We start rendering the frame only if its fence is open.
+    //
+    // Rendering frame 0:
+    //
+    // 1. Sync: Wait for fence F0.
+    // 2. Async: Acquire a swapchain image.
+    //    - The image will be available only when the pipeline is already running (signaled via the imageAvailable
+    //      semaphore).
+    // 3. Async: Submit the command buffer.
+    //    - Starts the render pass immediately.
+    //    - Sometime during the render pass, it will signal F0 and renderFinished.
+    // 4. Async: Present the image.
+    //    - will happen only when renderFinished.
+    //
+    // |----[______________F0]-------------------------------[____________F1]----------->
+    //        |                                                |
+    //        RenderPass                                       RenderPass
+    //          |
+    //          SubPass
+    //            |
+    //            Pipeline
+    //              |   +-- ...
+    //              |   +-- ColorOutputStage --wait-for--+
+    //              |                                    |
+    //              Framebuffer_0                        |
+    //                |                                  |
+    //                Swapchain_Image_0 <-imageAvailable-+
+    //
+
+    // -- RATE LIMIT
 
     // Wait for fence.
     const std::array<vk::Fence, 1> fences{ m_drawFence[m_currentFrame] };
@@ -786,6 +819,8 @@ void VulkanRenderer::draw()
         throw Common::RendererError{ "Cannot wait for fences." };
     }
     m_device.resetFences(fences);
+
+    // -- REQUEST SWAPCHAIN IMAGE
 
     const auto imageIndexResult{ m_device.acquireNextImage2KHR(
         vk::AcquireNextImageInfoKHR{ /* swapchain */ m_swapchain.swapchain,
@@ -818,11 +853,11 @@ void VulkanRenderer::draw()
                                                        /* pSignalSemaphores */ signalSemaphores } },
         m_drawFence[m_currentFrame]);
 
-    // -- PRESENT IMAGE
+    // -- REQUEST PRESENT IMAGE
 
     const std::array<vk::SwapchainKHR, 1> swapchains{ m_swapchain.swapchain };
     const std::array<std::uint32_t, 1> imageIndices{ imageIndex };
-    result = m_graphicsQueue.presentKHR(vk::PresentInfoKHR{ // Wait for the "render finished" signal.
+    result = m_graphicsQueue.presentKHR(vk::PresentInfoKHR{ // Wait for the "render finished" signal before presenting.
                                                             /* pWaitSemaphores */ signalSemaphores,
                                                             /* pSwapchains */ swapchains,
                                                             /* pImageIndices */ imageIndices });
