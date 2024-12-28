@@ -1,0 +1,17 @@
+{
+    "configurations": [
+        {
+            "name": "C/C++: Build and debug project.",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/src/Debug/vulkan_test_01.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/build/src/Debug",
+            "environment": [],
+            "console": "integratedTerminal",
+            "preLaunchTask": "Build with CMake"
+        }
+    ],
+    "version": "2.0.0"
+}
