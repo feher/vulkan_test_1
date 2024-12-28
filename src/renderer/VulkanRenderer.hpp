@@ -3,6 +3,7 @@
 #include "common/IFileSystem.hpp"
 #include "common/Types.hpp"
 #include "renderer/IRenderer.hpp"
+#include "renderer/Mesh.hpp"
 #include "window/IWindow.hpp"
 
 #include <vulkan/vulkan_raii.hpp>
@@ -71,6 +72,7 @@ private:
     std::vector<vk::raii::Semaphore> m_imageAvailable;
     std::vector<vk::raii::Semaphore> m_renderFinished;
     std::vector<vk::raii::Fence> m_drawFence;
+    Mesh m_firstMesh;
 };
 
 } // namespace VkTest1::Renderer::Detail

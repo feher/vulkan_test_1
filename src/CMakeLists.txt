@@ -45,11 +45,15 @@ add_executable(${myTargetName}
     "common/FileSystem.hpp"
     "common/FileSystem.cpp"
 
+    "geometry/Vertex.hpp"
+
     "renderer/DebugUtilsMessenger.cpp"
     "renderer/DebugUtilsMessenger.hpp"
     "renderer/IRenderer.hpp"
     "renderer/VulkanRenderer.cpp"
     "renderer/VulkanRenderer.hpp"
+    "renderer/Mesh.cpp"
+    "renderer/Mesh.hpp"
 
     "window/GlfwWindow.cpp"
     "window/GlfwWindow.hpp"

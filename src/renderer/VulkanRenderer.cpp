@@ -2,7 +2,9 @@
 
 #include "common/Cast.hpp"
 #include "common/Errors.hpp"
+#include "geometry/Vertex.hpp"
 #include "renderer/DebugUtilsMessenger.hpp"
+#include "renderer/Mesh.hpp"
 
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_raii.hpp>
@@ -495,9 +497,36 @@ vk::raii::Pipeline createPipeline(
 
     // -- VERTEX INPUT
 
-    // Vertex Binding Descriptions: Data spacing, stride.
-    // Vertex Attribute Descriptions: Data format, where to bind to/from.
-    const vk::PipelineVertexInputStateCreateInfo vertexInputStateCI{};
+    const std::array<vk::VertexInputBindingDescription, 1> vertexInputBindingDescriptions{
+        vk::VertexInputBindingDescription{
+            // We can bind multiple streams of data but we bind only one.
+            /* binding */ 0,
+            /* stride */ sizeof(Geometry::Vertex),
+            // eVertex means "move to the next vertex". I.e. draw one object ata time.
+            // eInstance means "move to the vertex of he next instance".
+            //           Used when doing instanced drawing. I.e draw the next vertex of every
+            //           instance. The instances are drawn "at the same time".
+            /* inputRate */ vk::VertexInputRate::eVertex }
+    };
+
+    const std::array<vk::VertexInputAttributeDescription, 2> vertexInputAttributeDescriptions{
+        // Vertex position.
+        vk::VertexInputAttributeDescription{ /* location */ 0,
+                                             /* binding */ 0,
+                                             vk::Format::eR32G32B32Sfloat,
+                                             /* offset */ offsetof(Geometry::Vertex, position) },
+        // Vertex color.
+        vk::VertexInputAttributeDescription{ /* location */ 1,
+                                             /* binding */ 0,
+                                             vk::Format::eR32G32B32Sfloat,
+                                             /* offset */ offsetof(Geometry::Vertex, color) }
+    };
+
+    const vk::PipelineVertexInputStateCreateInfo vertexInputStateCI{
+        /* flags */ {},
+        /* pVertexBindingDescriptions */ vertexInputBindingDescriptions,
+        /* pVertexAttributeDescriptions */ vertexInputAttributeDescriptions
+    };
 
     // -- INPUT ASSEMBLY
 
@@ -669,7 +698,7 @@ std::vector<vk::raii::CommandBuffer> createCommandBuffers(
 void recordCommands(
     std::span<const vk::raii::CommandBuffer> commandBuffers, const vk::raii::RenderPass& renderPass,
     std::span<const vk::raii::Framebuffer> framebuffers, const vk::Extent2D& swapchainImageExtent,
-    const vk::raii::Pipeline& pipeline)
+    const vk::raii::Pipeline& pipeline, const Renderer::Mesh& mesh)
 {
     assert(commandBuffers.size() == framebuffers.size());
 
@@ -685,7 +714,7 @@ void recordCommands(
     };
 
     // We have a separate Command Buffer for each Framebuffer / Swapchain Image.
-    for (auto i = 0u; i != commandBuffers.size(); ++i)
+    for (auto i{ 0u }; i != commandBuffers.size(); ++i)
     {
         auto& commandBuffer{ commandBuffers[i] };
         commandBuffer.begin(cmdBufferBI);
@@ -702,7 +731,11 @@ void recordCommands(
 
             commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline);
 
-            commandBuffer.draw(3, 1, 0, 0);
+            const std::array<const vk::Buffer, 1> buffers{ mesh.getVertexBuffer() };
+            const std::array<const vk::DeviceSize, 1> offsets{ 0 };
+            commandBuffer.bindVertexBuffers(0, buffers, offsets);
+
+            commandBuffer.draw(mesh.getVertexCount(), 1, 0, 0);
 
             commandBuffer.endRenderPass();
         }
@@ -735,6 +768,28 @@ std::vector<vk::raii::Fence> createFences(const vk::raii::Device& device, std::s
     return fences;
 }
 
+Renderer::Mesh createMesh(const vk::raii::PhysicalDevice& physicalDevice, const vk::raii::Device& device)
+{
+    // In Vulkan we have a right-handed NDC space:
+    //
+    //              + Z
+    //             /
+    //            /
+    //           o----------+ X
+    //           |
+    //           |
+    //         Y +
+    //
+    std::vector<Geometry::Vertex> vertices{ { { 0.4, -0.4, 0.0 }, { 1.0f, 0.0f, 0.0f } },
+                                            { { 0.4, 0.4, 0.0 }, { 0.0f, 1.0f, 0.0f } },
+                                            { { -0.4, 0.4, 0.0 }, { 0.0f, 0.0f, 1.0f } },
+
+                                            { { -0.4, 0.4, 0.0 }, { 0.0f, 0.0f, 1.0f } },
+                                            { { -0.4, -0.4, 0.0 }, { 1.0f, 1.0f, 0.0f } },
+                                            { { 0.4, -0.4, 0.0 }, { 1.0f, 0.0f, 0.0f } } };
+    return Renderer::Mesh{ physicalDevice, device, vertices };
+}
+
 } // namespace
 
 namespace VkTest1::Renderer::Detail
@@ -764,10 +819,11 @@ VulkanRenderer::VulkanRenderer(
     m_commandBuffers{ createCommandBuffers(m_device, m_graphicsCommandPool, m_swapchain.images.size()) },
     m_imageAvailable{ createSemaphores(m_device, s_maxFrameCountInQueue) },
     m_renderFinished{ createSemaphores(m_device, s_maxFrameCountInQueue) },
-    m_drawFence{ createFences(m_device, s_maxFrameCountInQueue) }
+    m_drawFence{ createFences(m_device, s_maxFrameCountInQueue) },
+    m_firstMesh{ createMesh(m_physicalDevice.device, m_device) }
 {
     printPhysicalDeviceInfo(m_physicalDevice.device);
-    recordCommands(m_commandBuffers, m_renderPass, m_framebuffers, m_swapchain.imageExtent, m_pipeline);
+    recordCommands(m_commandBuffers, m_renderPass, m_framebuffers, m_swapchain.imageExtent, m_pipeline, m_firstMesh);
 }
 
 VulkanRenderer::~VulkanRenderer()

@@ -135,3 +135,15 @@ Synchronization
     - CPU can un-signal (lock) it and wait on it (for unlock). Only the GPU can signal (unlock) it.
   - Examples:
     - Wait for a frame to be available (to avoid flooding the queue with draw/present commands).
+
+Vertex Buffer
+- Does not hold data.
+- Describes:
+  - Size
+  - Usage: vertex, index, storage, etc.
+  - Queue sharing
+- Has a reference to Device Memory.
+- Memory types:
+  - Device local: Only accessible by GPU. Indirectly accessible via command buffers.
+  - Host visible: CPU can access it. Maps GPU memory to CPU memory.
+  - Host coherent: No need to flush after modifications (for convenience).

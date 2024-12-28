@@ -67,10 +67,16 @@ private:
 namespace Flags
 {
 
-template<typename TFlags, typename TFlag>
-constexpr bool isSet(const TFlags flags, const TFlag flag)
+template<typename TFlags>
+constexpr bool isMaskSet(const TFlags flags, const TFlags flagMask)
 {
-    return (flags & flag) != 0;
+    return (flags & flagMask) == flagMask;
+}
+
+template<typename TFlags>
+constexpr bool isFlagSet(const TFlags flags, const unsigned int flagNumber)
+{
+    return (flags & (1 << flagNumber)) != 0;
 }
 
 } // namespace Flags
